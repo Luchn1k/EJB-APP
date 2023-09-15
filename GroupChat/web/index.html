@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Group Chat</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="background-color: black;">
+    <center>
+        <div style="width: 50%; height: 90%; background-color: #666666" >
+            <h1>Group Chat</h1>
+            <form>
+                <span>Your Username :</span>
+                <input type="text" id="un"/><br><br>
+                <span>Message :</span>
+                <input type="text" id="msg"/><br><br>
+                <input type="button" value="Send" onclick="send();" />
+            </form>
+
+            <p id="chat" style="width: 300px; min-height: 200px; border-color: #6f6f6f; border-width: 1px; border-style: dashed; padding: 25px;"></p>
+        </div>
+    </center>
+
+        <script type='text/javascript' src='/BCDGroupChat/dwr/engine.js'></script>
+        <script type='text/javascript' src='/BCDGroupChat/dwr/interface/JMSReceiver.js'></script>
+        <script type='text/javascript' src='/BCDGroupChat/dwr/util.js'></script>
+
+        <script>
+
+                    listen();
+
+                    function listen() {
+                        JMSReceiver.readJMSMessageFromMyTopic("webClient", {
+                            callback: function (str) {
+                                document.getElementById("chat").innerHTML += str;
+                                listen();
+                            }
+                        });
+                    }
+
+                    function send() {
+                        var un = document.getElementById("un").value;
+                        var msg = document.getElementById("msg").value;
+
+                        var req = new XMLHttpRequest();
+                        req.onreadystatechange = function () {
+                            if (req.readyState == 4 && req.status == 200) {
+                                document.getElementById("msg").value = "";
+                            }
+                        }
+                        req.open("GET", "MDBTopicCaller?un=" + un + "&msg=" + msg, true);
+                        req.send();
+                    }
+        </script>
+    </body>
+</html>
